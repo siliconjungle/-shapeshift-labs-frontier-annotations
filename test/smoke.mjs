@@ -70,6 +70,11 @@ assert.ok(threadCard);
 assert.ok(threadCard.style.left.endsWith('px'));
 assert.ok(threadCard.style.top.endsWith('px'));
 assert.ok(threadCard.style.maxHeight.endsWith('px'));
+const threadLeft = threadCard.style.left;
+const threadTop = threadCard.style.top;
+const threadHeader = overlayRoot.querySelector('.frontier-annotation-thread-header');
+assert.ok(threadHeader);
+assert.strictEqual(threadHeader.firstElementChild?.className, 'frontier-annotation-collapse');
 const composer = overlayRoot.querySelector('[data-frontier-annotation-composer="' + annotation.id + '"]');
 assert.ok(composer);
 const textarea = composer.querySelector('textarea');
@@ -84,6 +89,13 @@ collapseButton.dispatchEvent(new window.Event('click', { bubbles: true, cancelab
 assert.strictEqual(annotation.thread.collapsed, true);
 threadCard = overlayRoot.querySelector('[data-frontier-annotation-thread="' + annotation.id + '"]');
 assert.strictEqual(threadCard.className.includes('is-collapsed'), true);
+assert.strictEqual(threadCard.style.left, threadLeft);
+assert.strictEqual(threadCard.style.top, threadTop);
+overlayRoot.querySelector('.frontier-annotation-collapse').dispatchEvent(new window.Event('click', { bubbles: true, cancelable: true }));
+assert.strictEqual(annotation.thread.collapsed, false);
+threadCard = overlayRoot.querySelector('[data-frontier-annotation-thread="' + annotation.id + '"]');
+assert.strictEqual(threadCard.style.left, threadLeft);
+assert.strictEqual(threadCard.style.top, threadTop);
 
 window[FRONTIER_ANNOTATION_BROWSER_GLOBAL].disableTargeting();
 assert.strictEqual(toggle.getAttribute('aria-pressed'), 'false');

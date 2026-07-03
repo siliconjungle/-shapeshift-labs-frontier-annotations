@@ -135,33 +135,33 @@ function frontierAnnotationOverlayRuntime(input: Record<string, unknown>) {
     const style = doc.createElement('style');
     style.textContent = [
       ':host{all:initial}',
-      '.frontier-annotation-root{font:13px/1.35 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#e5e7eb;letter-spacing:0}',
-      '.frontier-annotation-toggle{position:fixed;right:16px;bottom:16px;width:44px;height:44px;display:grid;place-items:center;border:1px solid rgba(148,163,184,.45);border-radius:999px;background:#111827;color:#f8fafc;box-shadow:0 10px 30px rgba(2,6,23,.32);cursor:pointer;pointer-events:auto;padding:0}',
-      '.frontier-annotation-toggle:hover{background:#1f2937;border-color:rgba(125,211,252,.8)}',
-      '.frontier-annotation-toggle[aria-pressed="true"]{background:#075985;border-color:#38bdf8;color:#ffffff}',
+      '.frontier-annotation-root{font:13px/1.35 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#e5e5e5;letter-spacing:0}',
+      '.frontier-annotation-toggle{position:fixed;right:16px;bottom:16px;width:44px;height:44px;display:grid;place-items:center;border:1px solid rgba(163,163,163,.45);border-radius:999px;background:#171717;color:#fafafa;box-shadow:0 10px 30px rgba(0,0,0,.34);cursor:pointer;pointer-events:auto;padding:0}',
+      '.frontier-annotation-toggle:hover{background:#262626;border-color:rgba(229,229,229,.78)}',
+      '.frontier-annotation-toggle[aria-pressed="true"]{background:#404040;border-color:#f5f5f5;color:#ffffff}',
       '.frontier-annotation-toggle svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}',
       '.frontier-annotation-layer{position:fixed;inset:0;pointer-events:none}',
-      '.frontier-annotation-thread{position:fixed;box-sizing:border-box;display:flex;flex-direction:column;overflow:hidden;background:#0f172a;border:1px solid rgba(148,163,184,.38);border-radius:8px;box-shadow:0 18px 44px rgba(2,6,23,.44);pointer-events:auto;color:#e5e7eb}',
-      '.frontier-annotation-thread.is-active{border-color:#38bdf8;box-shadow:0 0 0 1px rgba(56,189,248,.45),0 18px 44px rgba(2,6,23,.44)}',
+      '.frontier-annotation-thread{position:fixed;box-sizing:border-box;display:flex;flex-direction:column;overflow:hidden;background:#171717;border:1px solid rgba(163,163,163,.38);border-radius:8px;box-shadow:0 18px 44px rgba(0,0,0,.46);pointer-events:auto;color:#e5e5e5}',
+      '.frontier-annotation-thread.is-active{border-color:#e5e5e5;box-shadow:0 0 0 1px rgba(229,229,229,.38),0 18px 44px rgba(0,0,0,.46)}',
       '.frontier-annotation-thread.is-collapsed{min-height:0}',
-      '.frontier-annotation-thread-header{display:grid;grid-template-columns:minmax(0,1fr) 30px;gap:8px;align-items:start;padding:10px 10px 8px;border-bottom:1px solid rgba(148,163,184,.22);background:#111827}',
+      '.frontier-annotation-thread-header{display:grid;grid-template-columns:28px minmax(0,1fr);gap:8px;align-items:start;padding:10px;border-bottom:1px solid rgba(163,163,163,.22);background:#1f1f1f}',
       '.frontier-annotation-thread-title{min-width:0}',
-      '.frontier-annotation-thread-kicker{font-size:11px;color:#93c5fd;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
-      '.frontier-annotation-thread-target{font-size:12px;color:#cbd5e1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
-      '.frontier-annotation-collapse{width:28px;height:28px;border:0;border-radius:6px;display:grid;place-items:center;background:#1f2937;color:#cbd5e1;cursor:pointer;padding:0}',
-      '.frontier-annotation-collapse:hover{background:#334155;color:#ffffff}',
+      '.frontier-annotation-thread-kicker{font-size:11px;color:#d4d4d4;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
+      '.frontier-annotation-thread-target{font-size:12px;color:#c7c7c7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
+      '.frontier-annotation-collapse{width:28px;height:28px;border:0;border-radius:6px;display:grid;place-items:center;background:#262626;color:#d4d4d4;cursor:pointer;padding:0}',
+      '.frontier-annotation-collapse:hover{background:#3a3a3a;color:#ffffff}',
       '.frontier-annotation-collapse svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}',
       '.frontier-annotation-messages{display:grid;gap:8px;padding:10px;overflow:auto;overscroll-behavior:contain}',
       '.frontier-annotation-thread.is-collapsed .frontier-annotation-messages,.frontier-annotation-thread.is-collapsed .frontier-annotation-composer{display:none}',
-      '.frontier-annotation-message{padding:8px 9px;border-radius:8px;background:#1e293b;color:#f8fafc;border:1px solid rgba(148,163,184,.18);word-break:break-word}',
-      '.frontier-annotation-message-meta{margin-bottom:4px;font-size:11px;color:#94a3b8}',
-      '.frontier-annotation-empty{padding:10px;color:#94a3b8}',
-      '.frontier-annotation-composer{display:grid;grid-template-columns:minmax(0,1fr) 34px;gap:8px;padding:10px;border-top:1px solid rgba(148,163,184,.22);background:#0b1220}',
-      '.frontier-annotation-input{box-sizing:border-box;width:100%;min-height:38px;max-height:96px;resize:vertical;border:1px solid rgba(148,163,184,.42);border-radius:8px;background:#020617;color:#f8fafc;padding:9px 10px;font:13px/1.35 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;outline:none}',
-      '.frontier-annotation-input:focus{border-color:#38bdf8;box-shadow:0 0 0 1px rgba(56,189,248,.42)}',
-      '.frontier-annotation-input::placeholder{color:#64748b}',
-      '.frontier-annotation-send{width:34px;height:34px;align-self:end;border:0;border-radius:8px;display:grid;place-items:center;background:#0284c7;color:#ffffff;cursor:pointer;padding:0}',
-      '.frontier-annotation-send:hover{background:#0369a1}',
+      '.frontier-annotation-message{padding:8px 9px;border-radius:8px;background:#2a2a2a;color:#fafafa;border:1px solid rgba(163,163,163,.18);word-break:break-word}',
+      '.frontier-annotation-message-meta{margin-bottom:4px;font-size:11px;color:#a3a3a3}',
+      '.frontier-annotation-empty{padding:10px;color:#a3a3a3}',
+      '.frontier-annotation-composer{display:grid;grid-template-columns:minmax(0,1fr) 34px;gap:8px;padding:10px;border-top:1px solid rgba(163,163,163,.22);background:#121212}',
+      '.frontier-annotation-input{box-sizing:border-box;width:100%;min-height:38px;max-height:96px;resize:vertical;border:1px solid rgba(163,163,163,.42);border-radius:8px;background:#0a0a0a;color:#fafafa;padding:9px 10px;font:13px/1.35 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;outline:none}',
+      '.frontier-annotation-input:focus{border-color:#d4d4d4;box-shadow:0 0 0 1px rgba(212,212,212,.36)}',
+      '.frontier-annotation-input::placeholder{color:#737373}',
+      '.frontier-annotation-send{width:34px;height:34px;align-self:end;border:0;border-radius:8px;display:grid;place-items:center;background:#525252;color:#ffffff;cursor:pointer;padding:0}',
+      '.frontier-annotation-send:hover{background:#737373}',
       '.frontier-annotation-send svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}'
     ].join('\n');
     const shell = doc.createElement('div');
@@ -186,9 +186,9 @@ function frontierAnnotationOverlayRuntime(input: Record<string, unknown>) {
       'position:fixed',
       'display:none',
       'pointer-events:none',
-      'border:2px solid #38bdf8',
-      'background:rgba(56,189,248,.10)',
-      'box-shadow:0 0 0 9999px rgba(2,6,23,.08)',
+      'border:2px solid #e5e5e5',
+      'background:rgba(229,229,229,.14)',
+      'box-shadow:0 0 0 9999px rgba(0,0,0,.08)',
       'border-radius:4px',
       'z-index:' + String(Number(config.zIndex) - 1)
     ].join(';');
@@ -496,7 +496,7 @@ function frontierAnnotationOverlayRuntime(input: Record<string, unknown>) {
         activeAnnotationId = annotation.id;
         renderThreads();
       });
-      header.append(title, collapse);
+      header.append(collapse, title);
 
       const messages = doc.createElement('div');
       messages.className = 'frontier-annotation-messages';

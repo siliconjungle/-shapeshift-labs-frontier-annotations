@@ -1,6 +1,6 @@
 {
   "name": "@shapeshift-labs/frontier-annotations",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Browser DOM annotation overlay and AI task context planner for Frontier harnesses.",
   "type": "module",
   "license": "MIT",
