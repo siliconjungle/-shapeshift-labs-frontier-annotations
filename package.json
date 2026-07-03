@@ -1,0 +1,84 @@
+{
+  "name": "@shapeshift-labs/frontier-annotations",
+  "version": "0.1.0",
+  "description": "Browser DOM annotation overlay and AI task context planner for Frontier harnesses.",
+  "type": "module",
+  "license": "MIT",
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/siliconjungle/-shapeshift-labs-frontier-annotations.git"
+  },
+  "homepage": "https://github.com/siliconjungle/-shapeshift-labs-frontier-annotations#readme",
+  "bugs": {
+    "url": "https://github.com/siliconjungle/-shapeshift-labs-frontier-annotations/issues"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./browser": {
+      "types": "./dist/browser.d.ts",
+      "import": "./dist/browser.js",
+      "default": "./dist/browser.js"
+    },
+    "./context": {
+      "types": "./dist/context.d.ts",
+      "import": "./dist/context.js",
+      "default": "./dist/context.js"
+    },
+    "./codex": {
+      "types": "./dist/codex.d.ts",
+      "import": "./dist/codex.js",
+      "default": "./dist/codex.js"
+    },
+    "./submission": {
+      "types": "./dist/submission.d.ts",
+      "import": "./dist/submission.js",
+      "default": "./dist/submission.js"
+    },
+    "./types": {
+      "types": "./dist/types.d.ts",
+      "import": "./dist/types.js",
+      "default": "./dist/types.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "benchmarks/package-bench.mjs"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "node build.mjs",
+    "test": "npm run build && npm run typecheck && node test/smoke.mjs",
+    "prepack": "npm run readme:packages:check && npm run test",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p test/tsconfig.json --noEmit",
+    "bench": "npm run build && node --expose-gc benchmarks/package-bench.mjs --out benchmarks/results/frontier-annotations-package-bench-latest.json",
+    "pack:dry": "npm pack --dry-run",
+    "readme:packages": "node benchmarks/package-readme-sections.mjs",
+    "readme:packages:check": "node benchmarks/package-readme-sections.mjs --check"
+  },
+  "keywords": [
+    "frontier",
+    "annotations",
+    "dom",
+    "playwright",
+    "codex",
+    "ai",
+    "debug"
+  ],
+  "devDependencies": {
+    "@types/jsdom": "^21.1.7",
+    "jsdom": "^22.1.0",
+    "typescript": "^6.0.3"
+  }
+}

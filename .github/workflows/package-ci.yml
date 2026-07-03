@@ -1,0 +1,22 @@
+name: package-ci
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run readme:packages:check
+      - run: npm test
+      - run: npm run bench -- --rounds 5
+      - run: npm run pack:dry
