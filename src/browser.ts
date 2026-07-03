@@ -39,7 +39,7 @@ function frontierAnnotationOverlayRuntime(input: Record<string, unknown>) {
   const config = Object.assign({
     submitOnCreate: true,
     buttonLabel: 'Annotation mode',
-    placeholder: 'Message Codex about this UI',
+    placeholder: 'tell the swarm...',
     maxTextLength: 280,
     includeCss: true,
     includeComputedStyle: true,
@@ -156,13 +156,13 @@ function frontierAnnotationOverlayRuntime(input: Record<string, unknown>) {
       '.frontier-annotation-message{padding:8px 9px;border-radius:8px;background:#2a2a2a;color:#fafafa;border:1px solid rgba(163,163,163,.18);word-break:break-word}',
       '.frontier-annotation-message-meta{margin-bottom:4px;font-size:11px;color:#a3a3a3}',
       '.frontier-annotation-empty{padding:10px;color:#a3a3a3}',
-      '.frontier-annotation-composer{display:grid;grid-template-columns:minmax(0,1fr) 34px;gap:8px;padding:10px;border-top:1px solid rgba(163,163,163,.22);background:#121212}',
-      '.frontier-annotation-input{box-sizing:border-box;width:100%;min-height:38px;max-height:96px;resize:vertical;border:1px solid rgba(163,163,163,.42);border-radius:8px;background:#0a0a0a;color:#fafafa;padding:9px 10px;font:13px/1.35 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;outline:none}',
-      '.frontier-annotation-input:focus{border-color:#d4d4d4;box-shadow:0 0 0 1px rgba(212,212,212,.36)}',
+      '.frontier-annotation-composer{position:relative;display:block;margin:10px;padding:0;border:0;border-radius:18px;background:#2b2b2b;box-shadow:none;outline:none}',
+      '.frontier-annotation-composer:focus-within{background:#303030;outline:none}',
+      '.frontier-annotation-input{box-sizing:border-box;display:block;width:100%;min-height:78px;max-height:164px;resize:vertical;border:0;border-radius:18px;background:transparent;color:#fafafa;padding:13px 54px 45px 14px;font:13px/1.35 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;outline:none;overflow:auto}',
       '.frontier-annotation-input::placeholder{color:#737373}',
-      '.frontier-annotation-send{width:34px;height:34px;align-self:end;border:0;border-radius:8px;display:grid;place-items:center;background:#525252;color:#ffffff;cursor:pointer;padding:0}',
-      '.frontier-annotation-send:hover{background:#737373}',
-      '.frontier-annotation-send svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}'
+      '.frontier-annotation-send{position:absolute;right:9px;bottom:9px;width:36px;height:36px;border:0;border-radius:999px;display:grid;place-items:center;background:#a3a3a3;color:#171717;cursor:pointer;padding:0;box-shadow:0 4px 12px rgba(0,0,0,.22)}',
+      '.frontier-annotation-send:hover{background:#d4d4d4}',
+      '.frontier-annotation-send svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}'
     ].join('\n');
     const shell = doc.createElement('div');
     shell.className = 'frontier-annotation-root';
@@ -527,8 +527,8 @@ function frontierAnnotationOverlayRuntime(input: Record<string, unknown>) {
       const input = doc.createElement('textarea');
       input.className = 'frontier-annotation-input';
       input.name = 'message';
-      input.rows = 2;
-      input.placeholder = String(config.placeholder || 'Message Codex about this UI');
+      input.rows = 3;
+      input.placeholder = String(config.placeholder || 'tell the swarm...');
       input.addEventListener('keydown', (event) => {
         if (event.key !== 'Enter' || event.shiftKey) return;
         event.preventDefault();
@@ -749,7 +749,7 @@ function frontierAnnotationOverlayRuntime(input: Record<string, unknown>) {
   }
 
   function sendIcon() {
-    return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z"></path><path d="M22 2 11 13"></path></svg>';
+    return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5"></path><path d="m5 12 7-7 7 7"></path></svg>';
   }
 
   function normalizeJson(value: unknown): unknown {

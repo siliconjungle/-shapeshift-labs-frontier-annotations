@@ -44,6 +44,9 @@ const overlay = window.document.querySelector('[data-frontier-annotation-overlay
 assert.strictEqual(overlay !== null, true);
 const overlayRoot = overlay.shadowRoot;
 assert.ok(overlayRoot);
+const overlayStyle = overlayRoot.querySelector('style')?.textContent || '';
+assert.strictEqual(overlayStyle.includes('.frontier-annotation-composer{position:relative;display:block;margin:10px;padding:0;border:0;'), true);
+assert.strictEqual(overlayStyle.includes('.frontier-annotation-composer:focus-within{border-color'), false);
 const toggle = overlayRoot.querySelector('[data-frontier-annotation-toggle]');
 assert.ok(toggle);
 assert.strictEqual(toggle.getAttribute('aria-pressed'), 'false');
@@ -78,6 +81,12 @@ assert.strictEqual(threadHeader.firstElementChild?.className, 'frontier-annotati
 const composer = overlayRoot.querySelector('[data-frontier-annotation-composer="' + annotation.id + '"]');
 assert.ok(composer);
 const textarea = composer.querySelector('textarea');
+assert.strictEqual(textarea.placeholder, 'tell the swarm...');
+const sendButton = composer.querySelector('.frontier-annotation-send');
+assert.ok(sendButton);
+assert.strictEqual(sendButton.innerHTML.includes('M12 19V5'), true);
+assert.strictEqual(composer.firstElementChild, textarea);
+assert.strictEqual(composer.lastElementChild, sendButton);
 textarea.value = 'Also make sure this routes to the save flow.';
 composer.dispatchEvent(new window.Event('submit', { bubbles: true, cancelable: true }));
 assert.strictEqual(annotation.thread.messages.length, 2);
