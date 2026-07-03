@@ -40,7 +40,14 @@ const script = createFrontierAnnotationOverlayScript({
 });
 window.eval(script);
 assert.ok(window[FRONTIER_ANNOTATION_BROWSER_GLOBAL]);
-assert.strictEqual(window.document.querySelector('[data-frontier-annotation-overlay]') !== null, true);
+const overlay = window.document.querySelector('[data-frontier-annotation-overlay]');
+assert.strictEqual(overlay !== null, true);
+const overlayRoot = overlay.shadowRoot;
+assert.ok(overlayRoot);
+const toggle = overlayRoot.querySelector('[data-frontier-annotation-toggle]');
+assert.ok(toggle);
+assert.strictEqual(toggle.getAttribute('aria-pressed'), 'false');
+assert.strictEqual(overlayRoot.querySelectorAll('[data-frontier-annotation-thread]').length, 0);
 
 const button = window.document.querySelector('[data-testid="save-button"]');
 const annotation = window[FRONTIER_ANNOTATION_BROWSER_GLOBAL].annotateElement(button, 'Make this button clearer');
@@ -50,7 +57,37 @@ assert.strictEqual(annotation.target.text, 'Save draft');
 assert.strictEqual(annotation.sourceHints[0].file, 'src/components/SaveButton.tsx');
 assert.strictEqual(annotation.sourceHints[0].line, 12);
 assert.strictEqual(annotation.css[0].selector, '.primary.action');
+assert.strictEqual(annotation.thread.messages.length, 1);
+assert.strictEqual(annotation.thread.messages[0].body, 'Make this button clearer');
 assert.strictEqual(submitted.length, 1);
+assert.strictEqual(overlayRoot.querySelectorAll('[data-frontier-annotation-thread]').length, 0);
+
+window[FRONTIER_ANNOTATION_BROWSER_GLOBAL].enableTargeting();
+assert.strictEqual(toggle.getAttribute('aria-pressed'), 'true');
+assert.notStrictEqual(toggle.innerHTML.includes('circle'), false);
+let threadCard = overlayRoot.querySelector('[data-frontier-annotation-thread="' + annotation.id + '"]');
+assert.ok(threadCard);
+assert.ok(threadCard.style.left.endsWith('px'));
+assert.ok(threadCard.style.top.endsWith('px'));
+assert.ok(threadCard.style.maxHeight.endsWith('px'));
+const composer = overlayRoot.querySelector('[data-frontier-annotation-composer="' + annotation.id + '"]');
+assert.ok(composer);
+const textarea = composer.querySelector('textarea');
+textarea.value = 'Also make sure this routes to the save flow.';
+composer.dispatchEvent(new window.Event('submit', { bubbles: true, cancelable: true }));
+assert.strictEqual(annotation.thread.messages.length, 2);
+assert.ok(annotation.note.includes('Also make sure this routes to the save flow.'));
+assert.strictEqual(submitted.length, 2);
+
+const collapseButton = overlayRoot.querySelector('.frontier-annotation-collapse');
+collapseButton.dispatchEvent(new window.Event('click', { bubbles: true, cancelable: true }));
+assert.strictEqual(annotation.thread.collapsed, true);
+threadCard = overlayRoot.querySelector('[data-frontier-annotation-thread="' + annotation.id + '"]');
+assert.strictEqual(threadCard.className.includes('is-collapsed'), true);
+
+window[FRONTIER_ANNOTATION_BROWSER_GLOBAL].disableTargeting();
+assert.strictEqual(toggle.getAttribute('aria-pressed'), 'false');
+assert.strictEqual(overlayRoot.querySelectorAll('[data-frontier-annotation-thread]').length, 0);
 
 const sources = [
   {

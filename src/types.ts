@@ -108,9 +108,26 @@ export interface FrontierAnnotationDomTarget {
   ancestry: FrontierAnnotationAncestor[];
 }
 
+export interface FrontierAnnotationThreadMessage {
+  id: string;
+  body: string;
+  actor?: string;
+  createdAt: number;
+  status?: FrontierAnnotationStatus;
+  metadata?: FrontierAnnotationJsonObject;
+}
+
+export interface FrontierAnnotationThread {
+  id: string;
+  collapsed?: boolean;
+  messages: FrontierAnnotationThreadMessage[];
+  metadata?: FrontierAnnotationJsonObject;
+}
+
 export interface FrontierAnnotationInput {
   id?: string;
   note: string;
+  thread?: FrontierAnnotationThread;
   target: FrontierAnnotationDomTarget;
   css?: readonly FrontierAnnotationCssRule[];
   sourceHints?: readonly FrontierAnnotationSourceHint[];
@@ -130,6 +147,7 @@ export interface FrontierAnnotation {
   version: typeof FRONTIER_ANNOTATION_VERSION;
   id: string;
   note: string;
+  thread?: FrontierAnnotationThread;
   target: FrontierAnnotationDomTarget;
   css: FrontierAnnotationCssRule[];
   sourceHints: FrontierAnnotationSourceHint[];

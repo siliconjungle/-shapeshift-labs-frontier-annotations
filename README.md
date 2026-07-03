@@ -86,6 +86,7 @@ The published Frontier package family is generated from one shared package catal
 - [`@shapeshift-labs/frontier-trace`](https://www.npmjs.com/package/@shapeshift-labs/frontier-trace): Serializable traces, spans, events, causal links, W3C trace context helpers, timeline/resource/path queries, critical-path analysis, registry graph output, JSONL/proof helpers, Chrome trace export, and redaction for app-wide feature observability.
 - [`@shapeshift-labs/frontier-manifest`](https://www.npmjs.com/package/@shapeshift-labs/frontier-manifest): Build/static feature manifests for owners, routes, actions, states, migrations, tests, source files, assets, resources, tasks, dependency metadata, registry graph output, feature maps, JSONL export, and impact queries.
 - [`@shapeshift-labs/frontier-view`](https://www.npmjs.com/package/@shapeshift-labs/frontier-view): Renderer-neutral view manifests, type defaults, validation frames, action bindings, visual channels, virtual/LOD hints, and data-to-representation mapping for Frontier apps.
+- [`@shapeshift-labs/frontier-collapse`](https://www.npmjs.com/package/@shapeshift-labs/frontier-collapse): Constraint-collapse and projection admission records for one Frontier program becoming many valid shapes, including identity, behavior, runtime, proof, explicit projection losses, admitted projections, rejected shapes, and target contracts for React, SwiftUI, CLI, worker routes, plugin mounts, native adapters, and local-first views.
 - [`@shapeshift-labs/frontier-icons`](https://www.npmjs.com/package/@shapeshift-labs/frontier-icons): Renderer-neutral icon records, icon sets, lookup aliases, SVG frames, string rendering, and registry evidence for Frontier apps.
 - [`@shapeshift-labs/frontier-design`](https://www.npmjs.com/package/@shapeshift-labs/frontier-design): Renderer-neutral design-system tokens, semantic roles, recipes, target style frames, CSS variable output, and registry graph evidence for Frontier apps.
 - [`@shapeshift-labs/frontier-canvas`](https://www.npmjs.com/package/@shapeshift-labs/frontier-canvas): Renderer-neutral infinite canvas surfaces for Frontier apps, including camera and viewport math, pan/zoom plans, grid materialization, snapping, hit testing, selection handles, extensible tool dispatch, frame records, registry graph output, and impact/proof helpers.
@@ -93,6 +94,7 @@ The published Frontier package family is generated from one shared package catal
 - [`@shapeshift-labs/frontier-dnd`](https://www.npmjs.com/package/@shapeshift-labs/frontier-dnd): Renderer-neutral drag-and-drop sessions, sensor descriptors, collision ranking, drop planning, reorder patches, state partitioning, and registry evidence for Frontier apps.
 - [`@shapeshift-labs/frontier-dom`](https://www.npmjs.com/package/@shapeshift-labs/frontier-dom): Patch-native DOM and host renderer bindings, manifest hydration, JSX runtime/compiler helpers, SSR, devtools, and logging bridges.
 - [`@shapeshift-labs/frontier-playwright`](https://www.npmjs.com/package/@shapeshift-labs/frontier-playwright): Playwright/headless automation probes for Frontier state, DOM, devtools, marks, and timeline queries.
+- [`@shapeshift-labs/frontier-annotations-harness`](https://www.npmjs.com/package/@shapeshift-labs/frontier-annotations-harness): Node browser annotation harness server and CLI for injecting Frontier annotation threads, collecting source context, writing Loom/frontier-swarm Codex task artifacts, and optionally starting swarm runs.
 - [`@shapeshift-labs/frontier-test`](https://www.npmjs.com/package/@shapeshift-labs/frontier-test): Serializable test/spec evidence manifests for Frontier apps, including fixtures, commands, expected patches/effects/routes/policies, coverage declarations, run plans, run records, report adapters, replay proofs, fuzzers, benchmarks, registry graph output, and impact queries.
 - [`@shapeshift-labs/frontier-fixtures`](https://www.npmjs.com/package/@shapeshift-labs/frontier-fixtures): Deterministic fixture and scenario generation for Frontier apps, including schema-valid sample state, related entity collections, actor personas, route states, replay-verified patch streams, event records, JSONL bundles, and evidence summaries.
 - [`@shapeshift-labs/frontier-component-preview`](https://www.npmjs.com/package/@shapeshift-labs/frontier-component-preview): Frontier-native component preview books, generated preview manifests, stateful variants, Vite virtual modules, standalone browser preview shells, inspector bridges, and preview harness evidence for Frontier apps.
@@ -190,6 +192,7 @@ Package source repositories:
 - [`siliconjungle/-shapeshift-labs-frontier-trace`](https://github.com/siliconjungle/-shapeshift-labs-frontier-trace)
 - [`siliconjungle/-shapeshift-labs-frontier-manifest`](https://github.com/siliconjungle/-shapeshift-labs-frontier-manifest)
 - [`siliconjungle/-shapeshift-labs-frontier-view`](https://github.com/siliconjungle/-shapeshift-labs-frontier-view)
+- [`siliconjungle/-shapeshift-labs-frontier-collapse`](https://github.com/siliconjungle/-shapeshift-labs-frontier-collapse)
 - [`siliconjungle/-shapeshift-labs-frontier-icons`](https://github.com/siliconjungle/-shapeshift-labs-frontier-icons)
 - [`siliconjungle/-shapeshift-labs-frontier-design`](https://github.com/siliconjungle/-shapeshift-labs-frontier-design)
 - [`siliconjungle/-shapeshift-labs-frontier-canvas`](https://github.com/siliconjungle/-shapeshift-labs-frontier-canvas)
@@ -198,6 +201,7 @@ Package source repositories:
 - [`siliconjungle/-shapeshift-labs-frontier-dom`](https://github.com/siliconjungle/-shapeshift-labs-frontier-dom)
 - [`siliconjungle/-shapeshift-labs-frontier-playwright`](https://github.com/siliconjungle/-shapeshift-labs-frontier-playwright)
 - [`siliconjungle/-shapeshift-labs-frontier-annotations`](https://github.com/siliconjungle/-shapeshift-labs-frontier-annotations)
+- [`siliconjungle/-shapeshift-labs-frontier-annotations-harness`](https://github.com/siliconjungle/-shapeshift-labs-frontier-annotations-harness)
 - [`siliconjungle/-shapeshift-labs-frontier-test`](https://github.com/siliconjungle/-shapeshift-labs-frontier-test)
 - [`siliconjungle/-shapeshift-labs-frontier-fixtures`](https://github.com/siliconjungle/-shapeshift-labs-frontier-fixtures)
 - [`siliconjungle/-shapeshift-labs-frontier-component-preview`](https://github.com/siliconjungle/-shapeshift-labs-frontier-component-preview)
@@ -240,7 +244,10 @@ await installFrontierAnnotationOverlay(page, {
 The overlay installs `window.__FRONTIER_ANNOTATIONS__` with:
 
 - `enableTargeting()` / `disableTargeting()` for DevTools-like hover and click selection.
-- `annotateElement(element, note)` for direct harness-created annotations.
+- An icon-only fixed mode toggle that stays visible while annotation threads stay hidden until mode is active.
+- Dark, viewport-clamped thread portals anchored to selected DOM nodes.
+- Chat-style thread messages with a textarea composer, submit button, message append, and collapse/expand controls.
+- `annotateElement(element, note)` and `submitMessage(annotationId, body)` for direct harness-created annotations and follow-up messages.
 - `getAnnotations()` and `clear()` for replayable evidence.
 - `frontier-annotation-submit` browser events plus optional `endpoint` or `bridgeGlobal` submission.
 

@@ -15,7 +15,8 @@ import {
   type FrontierAnnotationContext,
   type FrontierAnnotationInstallOptions,
   type FrontierAnnotationPageLike,
-  type FrontierAnnotationSourceRecordLike
+  type FrontierAnnotationSourceRecordLike,
+  type FrontierAnnotationThread
 } from '../dist/index.js';
 
 declare const page: FrontierAnnotationPageLike;
@@ -31,6 +32,7 @@ const installOptions: FrontierAnnotationInstallOptions = {
 const script: string = createFrontierAnnotationOverlayScript(installOptions);
 await installFrontierAnnotationOverlay(page, installOptions);
 const annotations: FrontierAnnotation[] = await readFrontierAnnotations(page);
+const thread: FrontierAnnotationThread | undefined = annotations[0]?.thread;
 
 const sources: FrontierAnnotationSourceRecordLike[] = [
   {
@@ -80,3 +82,4 @@ void validation;
 void decoded;
 void submitResult;
 void queue;
+void thread;

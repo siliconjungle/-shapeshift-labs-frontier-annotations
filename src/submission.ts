@@ -24,6 +24,7 @@ export function createFrontierAnnotation(input: FrontierAnnotation | FrontierAnn
     version: FRONTIER_ANNOTATION_VERSION,
     id: draft.id ?? stableId('annotation', draft.note + ':' + draft.target.selector),
     note: draft.note,
+    thread: draft.thread ? cloneThread(draft.thread) : undefined,
     target: draft.target,
     css: [...(draft.css ?? [])],
     sourceHints: [...(draft.sourceHints ?? [])],
@@ -36,6 +37,13 @@ export function createFrontierAnnotation(input: FrontierAnnotation | FrontierAnn
     createdAt: draft.createdAt ?? Date.now(),
     status: draft.status ?? 'draft',
     metadata: toJsonObject(draft.metadata)
+  };
+}
+
+function cloneThread(thread: NonNullable<FrontierAnnotationInput['thread']>) {
+  return {
+    ...thread,
+    messages: thread.messages.map((message) => ({ ...message }))
   };
 }
 

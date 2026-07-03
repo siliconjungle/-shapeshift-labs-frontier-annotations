@@ -66,6 +66,9 @@ export function createFrontierAnnotationCodexPrompt(
     'User annotation:',
     annotation.note,
     '',
+    'Annotation thread:',
+    ...formatThreadMessages(annotation),
+    '',
     'Selected DOM target:',
     '- selector: ' + annotation.target.selector,
     '- cssPath: ' + annotation.target.cssPath,
@@ -148,6 +151,15 @@ function defaultAcceptance(annotation: FrontierAnnotation) {
     'The change is scoped to source files relevant to ' + annotation.target.selector + '.',
     'Focused tests or browser evidence cover the changed behavior.'
   ];
+}
+
+function formatThreadMessages(annotation: FrontierAnnotation) {
+  const messages = annotation.thread?.messages ?? [];
+  if (messages.length === 0) return ['- no thread messages captured'];
+  return messages.map((message, index) => {
+    const actor = message.actor ? message.actor + ': ' : '';
+    return '- #' + (index + 1) + ' ' + actor + message.body;
+  });
 }
 
 function formatHint(hint: { file?: string; line?: number; column?: number; symbol?: string; component?: string; reason?: string }) {

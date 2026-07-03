@@ -600,6 +600,14 @@
     "repoUrl": "https://github.com/siliconjungle/-shapeshift-labs-frontier-view"
   },
   {
+    "id": "frontier-collapse",
+    "name": "@shapeshift-labs/frontier-collapse",
+    "role": "Constraint-collapse and projection admission records for one Frontier program becoming many valid shapes, including identity, behavior, runtime, proof, explicit projection losses, admitted projections, rejected shapes, and target contracts for React, SwiftUI, CLI, worker routes, plugin mounts, native adapters, and local-first views.",
+    "npmUrl": "https://www.npmjs.com/package/@shapeshift-labs/frontier-collapse",
+    "repoName": "siliconjungle/-shapeshift-labs-frontier-collapse",
+    "repoUrl": "https://github.com/siliconjungle/-shapeshift-labs-frontier-collapse"
+  },
+  {
     "id": "frontier-icons",
     "name": "@shapeshift-labs/frontier-icons",
     "role": "Renderer-neutral icon records, icon sets, lookup aliases, SVG frames, string rendering, and registry evidence for Frontier apps.",
@@ -662,6 +670,14 @@
     "npmUrl": "https://www.npmjs.com/package/@shapeshift-labs/frontier-annotations",
     "repoName": "siliconjungle/-shapeshift-labs-frontier-annotations",
     "repoUrl": "https://github.com/siliconjungle/-shapeshift-labs-frontier-annotations"
+  },
+  {
+    "id": "frontier-annotations-harness",
+    "name": "@shapeshift-labs/frontier-annotations-harness",
+    "role": "Node browser annotation harness server and CLI for injecting Frontier annotation threads, collecting source context, writing Loom/frontier-swarm Codex task artifacts, and optionally starting swarm runs.",
+    "npmUrl": "https://www.npmjs.com/package/@shapeshift-labs/frontier-annotations-harness",
+    "repoName": "siliconjungle/-shapeshift-labs-frontier-annotations-harness",
+    "repoUrl": "https://github.com/siliconjungle/-shapeshift-labs-frontier-annotations-harness"
   },
   {
     "id": "frontier-test",
