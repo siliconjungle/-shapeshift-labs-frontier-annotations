@@ -158,7 +158,7 @@ function frontierAnnotationOverlayRuntime(input: Record<string, unknown>) {
       '.frontier-annotation-empty{padding:10px;color:#a3a3a3}',
       '.frontier-annotation-composer{position:relative;display:block;margin:10px;padding:0;border:0;border-radius:18px;background:#2b2b2b;box-shadow:none;outline:none}',
       '.frontier-annotation-composer:focus-within{background:#303030;outline:none}',
-      '.frontier-annotation-input{box-sizing:border-box;display:block;width:100%;min-height:78px;max-height:164px;resize:vertical;border:0;border-radius:18px;background:transparent;color:#fafafa;padding:13px 54px 45px 14px;font:13px/1.35 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;outline:none;overflow:auto}',
+      '.frontier-annotation-input{box-sizing:border-box;display:block;width:100%;min-height:78px;max-height:164px;resize:none;border:0;border-radius:18px;background:transparent;color:#fafafa;padding:13px 54px 45px 14px;font:13px/1.35 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;outline:none;overflow-y:hidden}',
       '.frontier-annotation-input::placeholder{color:#737373}',
       '.frontier-annotation-send{position:absolute;right:9px;bottom:9px;width:36px;height:36px;border:0;border-radius:999px;display:grid;place-items:center;background:#a3a3a3;color:#171717;cursor:pointer;padding:0;box-shadow:0 4px 12px rgba(0,0,0,.22)}',
       '.frontier-annotation-send:hover{background:#d4d4d4}',
@@ -529,6 +529,7 @@ function frontierAnnotationOverlayRuntime(input: Record<string, unknown>) {
       input.name = 'message';
       input.rows = 3;
       input.placeholder = String(config.placeholder || 'tell the swarm...');
+      input.addEventListener('input', () => resizeComposerInput(input));
       input.addEventListener('keydown', (event) => {
         if (event.key !== 'Enter' || event.shiftKey) return;
         event.preventDefault();
@@ -546,6 +547,7 @@ function frontierAnnotationOverlayRuntime(input: Record<string, unknown>) {
       });
       form.append(input, send);
       card.append(header, messages, form);
+      resizeComposerInput(input);
       card.addEventListener('click', () => {
         activeAnnotationId = annotation.id;
         renderThreads();
@@ -590,6 +592,17 @@ function frontierAnnotationOverlayRuntime(input: Record<string, unknown>) {
       const messages = root?.querySelector('[data-frontier-annotation-messages="' + cssAttributeEscape(annotationId) + '"]') as HTMLElement | null;
       if (messages) messages.scrollTop = messages.scrollHeight;
     });
+  }
+
+  function resizeComposerInput(input: HTMLTextAreaElement) {
+    input.style.height = 'auto';
+    const computed = getComputedStyle(input);
+    const minHeight = parseCssPixels(computed.minHeight, 78);
+    const maxHeight = parseCssPixels(computed.maxHeight, 164);
+    const scrollHeight = Math.max(input.scrollHeight, minHeight);
+    const height = Math.min(scrollHeight, maxHeight);
+    input.style.height = height + 'px';
+    input.style.overflowY = scrollHeight > maxHeight ? 'auto' : 'hidden';
   }
 
   function drawOutline(element: Element) {
@@ -712,6 +725,11 @@ function frontierAnnotationOverlayRuntime(input: Record<string, unknown>) {
   function clamp(value: number, min: number, max: number) {
     if (max < min) return min;
     return Math.min(Math.max(value, min), max);
+  }
+
+  function parseCssPixels(value: string, fallback: number) {
+    const parsed = Number.parseFloat(value);
+    return Number.isFinite(parsed) ? parsed : fallback;
   }
 
   function clampText(value: string, max: number) {

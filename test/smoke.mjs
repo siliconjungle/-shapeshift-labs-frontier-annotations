@@ -47,6 +47,7 @@ assert.ok(overlayRoot);
 const overlayStyle = overlayRoot.querySelector('style')?.textContent || '';
 assert.strictEqual(overlayStyle.includes('.frontier-annotation-composer{position:relative;display:block;margin:10px;padding:0;border:0;'), true);
 assert.strictEqual(overlayStyle.includes('.frontier-annotation-composer:focus-within{border-color'), false);
+assert.strictEqual(overlayStyle.includes('resize:none'), true);
 const toggle = overlayRoot.querySelector('[data-frontier-annotation-toggle]');
 assert.ok(toggle);
 assert.strictEqual(toggle.getAttribute('aria-pressed'), 'false');
@@ -82,6 +83,10 @@ const composer = overlayRoot.querySelector('[data-frontier-annotation-composer="
 assert.ok(composer);
 const textarea = composer.querySelector('textarea');
 assert.strictEqual(textarea.placeholder, 'tell the swarm...');
+Object.defineProperty(textarea, 'scrollHeight', { configurable: true, value: 220 });
+textarea.dispatchEvent(new window.Event('input', { bubbles: true, cancelable: true }));
+assert.strictEqual(textarea.style.height, '164px');
+assert.strictEqual(textarea.style.overflowY, 'auto');
 const sendButton = composer.querySelector('.frontier-annotation-send');
 assert.ok(sendButton);
 assert.strictEqual(sendButton.innerHTML.includes('M12 19V5'), true);
