@@ -54,6 +54,7 @@ function frontierAnnotationOverlayRuntime(input: Record<string, unknown>) {
   }
 
   let annotations: any[] = [];
+  let overlayOpen = false;
   let targetMode = false;
   let hoverElement: Element | null = null;
   let activeAnnotationId: string | null = null;
@@ -63,6 +64,7 @@ function frontierAnnotationOverlayRuntime(input: Record<string, unknown>) {
   let toggleButton: HTMLButtonElement | null = null;
   let threadLayer: HTMLElement | null = null;
   const annotationElements = new Map<string, Element>();
+  const composerDrafts = new Map<string, string>();
 
   const api = {
     version: 2,
@@ -76,7 +78,7 @@ function frontierAnnotationOverlayRuntime(input: Record<string, unknown>) {
     enableTargeting,
     disableTargeting,
     toggleTargeting() {
-      return targetMode ? disableTargeting() : enableTargeting();
+      return overlayOpen ? disableTargeting() : enableTargeting();
     },
     annotateElement(element: Element, note?: string, metadata?: unknown) {
       return createAnnotation(element, note, metadata);
@@ -99,6 +101,7 @@ function frontierAnnotationOverlayRuntime(input: Record<string, unknown>) {
     clear() {
       annotations = [];
       annotationElements.clear();
+      composerDrafts.clear();
       activeAnnotationId = null;
       renderThreads();
       return annotations;
@@ -121,7 +124,15 @@ function frontierAnnotationOverlayRuntime(input: Record<string, unknown>) {
   return api;
 
   function ensureUi() {
-    if (host && root && outline && toggleButton && threadLayer) return;
+    if (!doc.documentElement) {
+      defer(ensureUi);
+      return;
+    }
+    if (host && root && outline && toggleButton && threadLayer) {
+      if (!host.isConnected) doc.documentElement.appendChild(host);
+      if (!outline.isConnected) doc.documentElement.appendChild(outline);
+      return;
+    }
     host = doc.createElement('div');
     host.setAttribute('data-frontier-annotation-overlay', 'true');
     host.style.cssText = [
@@ -144,13 +155,13 @@ function frontierAnnotationOverlayRuntime(input: Record<string, unknown>) {
       '.frontier-annotation-thread{position:fixed;box-sizing:border-box;display:flex;flex-direction:column;overflow:hidden;background:#171717;border:1px solid rgba(163,163,163,.38);border-radius:var(--frontier-annotation-radius-shell);box-shadow:0 18px 44px rgba(0,0,0,.46);pointer-events:auto;color:#e5e5e5}',
       '.frontier-annotation-thread.is-active{border-color:#e5e5e5;box-shadow:0 0 0 1px rgba(229,229,229,.38),0 18px 44px rgba(0,0,0,.46)}',
       '.frontier-annotation-thread.is-collapsed{min-height:0}',
-      '.frontier-annotation-thread-header{display:grid;grid-template-columns:28px minmax(0,1fr);gap:8px;align-items:start;padding:10px;border-bottom:1px solid rgba(163,163,163,.22);background:#1f1f1f}',
+      '.frontier-annotation-thread-header{display:grid;grid-template-columns:28px minmax(0,1fr) 28px;gap:8px;align-items:start;padding:10px;border-bottom:1px solid rgba(163,163,163,.22);background:#1f1f1f}',
       '.frontier-annotation-thread-title{min-width:0}',
       '.frontier-annotation-thread-kicker{font-size:11px;color:#d4d4d4;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
       '.frontier-annotation-thread-target{font-size:12px;color:#c7c7c7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
-      '.frontier-annotation-collapse{width:28px;height:28px;border:0;border-radius:var(--frontier-annotation-radius-control);display:grid;place-items:center;background:#262626;color:#d4d4d4;cursor:pointer;padding:0}',
-      '.frontier-annotation-collapse:hover{background:#3a3a3a;color:#ffffff}',
-      '.frontier-annotation-collapse svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}',
+      '.frontier-annotation-collapse,.frontier-annotation-close{width:28px;height:28px;border:0;border-radius:var(--frontier-annotation-radius-control);display:grid;place-items:center;background:#262626;color:#d4d4d4;cursor:pointer;padding:0}',
+      '.frontier-annotation-collapse:hover,.frontier-annotation-close:hover{background:#3a3a3a;color:#ffffff}',
+      '.frontier-annotation-collapse svg,.frontier-annotation-close svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}',
       '.frontier-annotation-messages{display:grid;gap:8px;padding:10px;overflow:auto;overscroll-behavior:contain}',
       '.frontier-annotation-thread.is-collapsed .frontier-annotation-messages,.frontier-annotation-thread.is-collapsed .frontier-annotation-composer{display:none}',
       '.frontier-annotation-message{padding:8px 9px;border-radius:var(--frontier-annotation-radius-nested);background:#2a2a2a;color:#fafafa;border:1px solid rgba(163,163,163,.18);word-break:break-word}',
@@ -200,45 +211,62 @@ function frontierAnnotationOverlayRuntime(input: Record<string, unknown>) {
   }
 
   function enableTargeting() {
-    if (targetMode) return true;
-    targetMode = true;
-    doc.addEventListener('mouseover', onHover, true);
-    doc.addEventListener('mousemove', onHover, true);
-    doc.addEventListener('click', onClick, true);
-    doc.addEventListener('keydown', onKeyDown, true);
+    overlayOpen = true;
+    if (!targetMode) {
+      targetMode = true;
+      doc.addEventListener('mouseover', onHover, true);
+      doc.addEventListener('mousemove', onHover, true);
+      doc.addEventListener('click', onClick, true);
+      doc.addEventListener('keydown', onKeyDown, true);
+    }
     updateToggle();
     renderThreads();
     return true;
   }
 
   function disableTargeting() {
-    targetMode = false;
-    hoverElement = null;
-    doc.removeEventListener('mouseover', onHover, true);
-    doc.removeEventListener('mousemove', onHover, true);
-    doc.removeEventListener('click', onClick, true);
-    doc.removeEventListener('keydown', onKeyDown, true);
-    if (outline) outline.style.display = 'none';
+    overlayOpen = false;
+    stopTargeting();
     updateToggle();
     renderThreads();
     return false;
   }
 
+  function stopTargeting() {
+    if (targetMode) {
+      targetMode = false;
+      doc.removeEventListener('mouseover', onHover, true);
+      doc.removeEventListener('mousemove', onHover, true);
+      doc.removeEventListener('click', onClick, true);
+      doc.removeEventListener('keydown', onKeyDown, true);
+    }
+    hoverElement = null;
+    if (outline) outline.style.display = 'none';
+  }
+
   function updateToggle() {
     if (!toggleButton) return;
-    toggleButton.setAttribute('aria-pressed', targetMode ? 'true' : 'false');
-    toggleButton.setAttribute('aria-label', targetMode ? 'Close annotation mode' : 'Open annotation mode');
-    toggleButton.title = targetMode ? 'Close annotation mode' : 'Open annotation mode';
-    toggleButton.innerHTML = targetMode ? activeIcon() : closedIcon();
+    toggleButton.setAttribute('aria-pressed', overlayOpen ? 'true' : 'false');
+    toggleButton.setAttribute('aria-label', overlayOpen ? 'Close annotations' : 'Open annotation mode');
+    toggleButton.title = targetMode ? 'Select a UI target' : (overlayOpen ? 'Close annotations' : 'Open annotation mode');
+    toggleButton.innerHTML = overlayOpen ? activeIcon() : closedIcon();
   }
 
   function onViewportChange() {
-    if (targetMode) renderThreads();
-    if (hoverElement) drawOutline(hoverElement);
+    if (overlayOpen) renderThreads();
+    if (targetMode && hoverElement) drawOutline(hoverElement);
+    else if (outline) outline.style.display = 'none';
   }
 
   function onKeyDown(event: KeyboardEvent) {
-    if (event.key === 'Escape') disableTargeting();
+    if (event.key !== 'Escape') return;
+    if (targetMode) {
+      stopTargeting();
+      updateToggle();
+      renderThreads();
+    } else {
+      disableTargeting();
+    }
   }
 
   function onHover(event: Event) {
@@ -255,6 +283,9 @@ function frontierAnnotationOverlayRuntime(input: Record<string, unknown>) {
     event.stopPropagation();
     const annotation = createAnnotation(target, '', { createdBy: 'targeting' }, event);
     activeAnnotationId = annotation.id;
+    stopTargeting();
+    overlayOpen = true;
+    updateToggle();
     renderThreads();
     focusComposer(annotation.id);
   }
@@ -289,7 +320,7 @@ function frontierAnnotationOverlayRuntime(input: Record<string, unknown>) {
     annotations.push(annotation);
     annotationElements.set(annotation.id, element);
     activeAnnotationId = annotation.id;
-    renderThreads();
+    if (overlayOpen) renderThreads();
     if (initialBody && config.submitOnCreate !== false) submit(annotation);
     return annotation;
   }
@@ -308,6 +339,19 @@ function frontierAnnotationOverlayRuntime(input: Record<string, unknown>) {
     scrollThreadToBottom(annotation.id);
     focusComposer(annotation.id);
     return annotation;
+  }
+
+  function removeAnnotation(annotationId: string) {
+    const index = annotations.findIndex((item) => item.id === annotationId);
+    if (index < 0) return undefined;
+    const [removed] = annotations.splice(index, 1);
+    annotationElements.delete(annotationId);
+    composerDrafts.delete(annotationId);
+    if (activeAnnotationId === annotationId) {
+      activeAnnotationId = annotations[Math.min(index, annotations.length - 1)]?.id ?? null;
+    }
+    renderThreads();
+    return removed;
   }
 
   function createThreadMessage(annotationId: string, body: string, metadata?: unknown, status = 'draft') {
@@ -500,7 +544,7 @@ function frontierAnnotationOverlayRuntime(input: Record<string, unknown>) {
   function renderThreads() {
     if (!threadLayer) return;
     threadLayer.textContent = '';
-    if (!targetMode) return;
+    if (!overlayOpen) return;
     for (const annotation of annotations) {
       const card = doc.createElement('section');
       card.className = 'frontier-annotation-thread' +
@@ -532,7 +576,17 @@ function frontierAnnotationOverlayRuntime(input: Record<string, unknown>) {
         activeAnnotationId = annotation.id;
         renderThreads();
       });
-      header.append(collapse, title);
+      const close = doc.createElement('button');
+      close.type = 'button';
+      close.className = 'frontier-annotation-close';
+      close.setAttribute('aria-label', 'Close annotation thread');
+      close.innerHTML = closeIcon();
+      close.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        removeAnnotation(annotation.id);
+      });
+      header.append(collapse, title, close);
 
       const messages = doc.createElement('div');
       messages.className = 'frontier-annotation-messages';
@@ -565,7 +619,11 @@ function frontierAnnotationOverlayRuntime(input: Record<string, unknown>) {
       input.name = 'message';
       input.rows = 3;
       input.placeholder = String(config.placeholder || 'tell the swarm...');
-      input.addEventListener('input', () => resizeComposerInput(input));
+      input.value = composerDrafts.get(annotation.id) || '';
+      input.addEventListener('input', () => {
+        composerDrafts.set(annotation.id, input.value);
+        resizeComposerInput(input);
+      });
       input.addEventListener('keydown', (event) => {
         if (event.key !== 'Enter' || event.shiftKey) return;
         event.preventDefault();
@@ -576,15 +634,21 @@ function frontierAnnotationOverlayRuntime(input: Record<string, unknown>) {
       send.className = 'frontier-annotation-send';
       send.setAttribute('aria-label', 'Submit annotation message');
       send.innerHTML = sendIcon();
+      form.addEventListener('click', (event) => {
+        event.stopPropagation();
+      });
       form.addEventListener('submit', (event) => {
         event.preventDefault();
         event.stopPropagation();
+        composerDrafts.delete(annotation.id);
         addThreadMessage(annotation, input.value, { createdBy: 'thread-composer' });
       });
       form.append(input, send);
       card.append(header, messages, form);
       resizeComposerInput(input);
-      card.addEventListener('click', () => {
+      card.addEventListener('click', (event) => {
+        event.stopPropagation();
+        if (activeAnnotationId === annotation.id) return;
         activeAnnotationId = annotation.id;
         renderThreads();
       });
@@ -800,6 +864,10 @@ function frontierAnnotationOverlayRuntime(input: Record<string, unknown>) {
 
   function expandIcon() {
     return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m18 15-6-6-6 6"></path></svg>';
+  }
+
+  function closeIcon() {
+    return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>';
   }
 
   function sendIcon() {
