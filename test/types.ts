@@ -14,8 +14,10 @@ import {
   type FrontierAnnotationCodexTask,
   type FrontierAnnotationContext,
   type FrontierAnnotationInstallOptions,
+  type FrontierAnnotationMediaRef,
   type FrontierAnnotationPageLike,
   type FrontierAnnotationSourceRecordLike,
+  type FrontierAnnotationTargetClick,
   type FrontierAnnotationThread
 } from '../dist/index.js';
 
@@ -33,6 +35,13 @@ const script: string = createFrontierAnnotationOverlayScript(installOptions);
 await installFrontierAnnotationOverlay(page, installOptions);
 const annotations: FrontierAnnotation[] = await readFrontierAnnotations(page);
 const thread: FrontierAnnotationThread | undefined = annotations[0]?.thread;
+const click: FrontierAnnotationTargetClick | undefined = annotations[0]?.target.click;
+const media: FrontierAnnotationMediaRef = {
+  kind: 'image',
+  role: 'element-screenshot',
+  file: 'agent-runs/annotation/screenshots/target.png',
+  selector: annotations[0]?.target.selector
+};
 
 const sources: FrontierAnnotationSourceRecordLike[] = [
   {
@@ -83,3 +92,5 @@ void decoded;
 void submitResult;
 void queue;
 void thread;
+void click;
+void media;

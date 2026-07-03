@@ -74,8 +74,12 @@ export function createFrontierAnnotationCodexPrompt(
     '- cssPath: ' + annotation.target.cssPath,
     '- tagName: ' + annotation.target.tagName,
     annotation.target.text ? '- text: ' + annotation.target.text : '',
+    ...formatTargetClick(annotation),
     annotation.route ? '- route: ' + annotation.route : '',
     annotation.url ? '- url: ' + annotation.url : '',
+    '',
+    'Visual artifacts:',
+    ...formatMediaRefs(annotation),
     '',
     'Source hints:',
     ...annotation.sourceHints.map((hint) => '- ' + formatHint(hint)),
@@ -162,6 +166,28 @@ function formatThreadMessages(annotation: FrontierAnnotation) {
   });
 }
 
+function formatTargetClick(annotation: FrontierAnnotation) {
+  const click = annotation.target.click;
+  if (!click) return [];
+  const details = [
+    'client=' + round(click.clientX) + ',' + round(click.clientY),
+    'relative=' + round(click.relativeX) + ',' + round(click.relativeY),
+    click.ratioX !== undefined && click.ratioY !== undefined ? 'ratio=' + round(click.ratioX) + ',' + round(click.ratioY) : ''
+  ].filter(Boolean);
+  return ['- click: ' + details.join(' ')];
+}
+
+function formatMediaRefs(annotation: FrontierAnnotation) {
+  const media = annotation.media ?? [];
+  if (media.length === 0) return ['- none captured'];
+  return media.map((ref, index) => {
+    const location = ref.file ?? ref.path ?? ref.url ?? 'unknown';
+    const size = ref.width && ref.height ? ' size=' + round(ref.width) + 'x' + round(ref.height) : '';
+    const selector = ref.selector ? ' selector=' + ref.selector : '';
+    return '- #' + (index + 1) + ' ' + ref.role + ' ' + location + size + selector;
+  });
+}
+
 function formatHint(hint: { file?: string; line?: number; column?: number; symbol?: string; component?: string; reason?: string }) {
   const loc = [hint.file, hint.line !== undefined ? String(hint.line) : undefined, hint.column !== undefined ? String(hint.column) : undefined]
     .filter(Boolean)
@@ -170,4 +196,8 @@ function formatHint(hint: { file?: string; line?: number; column?: number; symbo
   return [loc || 'unknown-file', symbol ? 'symbol=' + symbol : '', hint.reason ? 'reason=' + hint.reason : '']
     .filter(Boolean)
     .join(' ');
+}
+
+function round(value: number) {
+  return Number.isInteger(value) ? String(value) : String(Math.round(value * 1000) / 1000);
 }

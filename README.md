@@ -2,7 +2,7 @@
 
 Browser DOM annotation overlay and AI task context planner for Frontier harnesses.
 
-`frontier-annotations` lets a browser harness inject a small floating button into an app, switch into Chrome DevTools style node targeting, and capture Google Docs style annotations anchored to selected DOM nodes. Captured annotations are serializable records with DOM selector, text, rect, attributes, CSS rules, source hints, route metadata, and submission status.
+`frontier-annotations` lets a browser harness inject a small floating button into an app, switch into Chrome DevTools style node targeting, and capture Google Docs style annotations anchored to selected DOM nodes. Captured annotations are serializable records with DOM selector, text, rect, attributes, click coordinates, optional image media refs, CSS rules, source hints, route metadata, and submission status.
 
 The package does not import Codex, Playwright, or a swarm runner. It exposes structural page helpers and task records so a host harness can submit annotation records to an endpoint, bridge function, `frontier-swarm-codex` queue, or another agent runner.
 
@@ -247,6 +247,7 @@ The overlay installs `window.__FRONTIER_ANNOTATIONS__` with:
 - An icon-only fixed mode toggle that stays visible while annotation threads stay hidden until mode is active.
 - Dark, viewport-clamped thread portals anchored to selected DOM nodes.
 - Chat-style thread messages with a textarea composer, submit button, message append, and collapse/expand controls.
+- Click coordinates relative to the selected node so a harness can attach targeted screenshots or canvas crops.
 - `annotateElement(element, note)` and `submitMessage(annotationId, body)` for direct harness-created annotations and follow-up messages.
 - `getAnnotations()` and `clear()` for replayable evidence.
 - `frontier-annotation-submit` browser events plus optional `endpoint` or `bridgeGlobal` submission.

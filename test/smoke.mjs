@@ -58,10 +58,21 @@ assert.strictEqual(toggle.getAttribute('aria-pressed'), 'false');
 assert.strictEqual(overlayRoot.querySelectorAll('[data-frontier-annotation-thread]').length, 0);
 
 const button = window.document.querySelector('[data-testid="save-button"]');
+button.getBoundingClientRect = () => ({
+  x: 10,
+  y: 20,
+  width: 120,
+  height: 32,
+  top: 20,
+  right: 130,
+  bottom: 52,
+  left: 10
+});
 const annotation = window[FRONTIER_ANNOTATION_BROWSER_GLOBAL].annotateElement(button, 'Make this button clearer');
 assert.strictEqual(annotation.kind, 'frontier.annotations.annotation');
 assert.strictEqual(annotation.target.selector, '[data-testid="save-button"]');
 assert.strictEqual(annotation.target.text, 'Save draft');
+assert.strictEqual(annotation.target.click, undefined);
 assert.strictEqual(annotation.sourceHints[0].file, 'src/components/SaveButton.tsx');
 assert.strictEqual(annotation.sourceHints[0].line, 12);
 assert.strictEqual(annotation.css[0].selector, '.primary.action');
@@ -73,6 +84,23 @@ assert.strictEqual(overlayRoot.querySelectorAll('[data-frontier-annotation-threa
 window[FRONTIER_ANNOTATION_BROWSER_GLOBAL].enableTargeting();
 assert.strictEqual(toggle.getAttribute('aria-pressed'), 'true');
 assert.notStrictEqual(toggle.innerHTML.includes('circle'), false);
+button.dispatchEvent(new window.MouseEvent('click', {
+  bubbles: true,
+  cancelable: true,
+  clientX: 70,
+  clientY: 36,
+  screenX: 700,
+  screenY: 360,
+  button: 0,
+  buttons: 1
+}));
+const clickAnnotation = window[FRONTIER_ANNOTATION_BROWSER_GLOBAL].getAnnotations().at(-1);
+assert.strictEqual(clickAnnotation.target.selector, '[data-testid="save-button"]');
+assert.strictEqual(clickAnnotation.target.click.clientX, 70);
+assert.strictEqual(clickAnnotation.target.click.relativeX, 60);
+assert.strictEqual(clickAnnotation.target.click.relativeY, 16);
+assert.strictEqual(clickAnnotation.target.click.ratioX, 0.5);
+assert.strictEqual(clickAnnotation.target.click.ratioY, 0.5);
 let threadCard = overlayRoot.querySelector('[data-frontier-annotation-thread="' + annotation.id + '"]');
 assert.ok(threadCard);
 assert.ok(threadCard.style.left.endsWith('px'));
@@ -154,6 +182,16 @@ assert.deepStrictEqual(context.sourceRefs.slice(0, 2), ['src/components/SaveButt
 assert.strictEqual(context.summary.selectedSourceCount, 2);
 assert.ok(context.snippets[0].text.includes('SaveButton'));
 
+annotation.media = [{
+  kind: 'image',
+  role: 'element-screenshot',
+  file: '/tmp/frontier-annotations/save-button.png',
+  mimeType: 'image/png',
+  width: 120,
+  height: 32,
+  selector: annotation.target.selector,
+  annotationId: annotation.id
+}];
 const task = createFrontierAnnotationCodexTask(annotation, context, {
   targetRefs: ['src/components/SaveButton.tsx'],
   allowedWrites: ['src/components/SaveButton.tsx'],
@@ -165,6 +203,8 @@ const task = createFrontierAnnotationCodexTask(annotation, context, {
 assert.strictEqual(task.kind, 'frontier.annotations.codex-task');
 assert.ok(task.prompt.includes('Make this button clearer'));
 assert.ok(task.prompt.includes('src/components/SaveButton.tsx'));
+assert.ok(task.prompt.includes('Visual artifacts:'));
+assert.ok(task.prompt.includes('/tmp/frontier-annotations/save-button.png'));
 assert.deepStrictEqual(task.allowedWrites, ['src/components/SaveButton.tsx']);
 
 const queue = createFrontierAnnotationCodexQueue([task], { id: 'queue-test' });

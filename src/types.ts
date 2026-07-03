@@ -61,6 +61,27 @@ export interface FrontierAnnotationRect {
   left: number;
 }
 
+export interface FrontierAnnotationTargetClick {
+  clientX: number;
+  clientY: number;
+  pageX: number;
+  pageY: number;
+  screenX?: number;
+  screenY?: number;
+  offsetX: number;
+  offsetY: number;
+  relativeX: number;
+  relativeY: number;
+  ratioX?: number;
+  ratioY?: number;
+  button?: number;
+  buttons?: number;
+  altKey?: boolean;
+  ctrlKey?: boolean;
+  metaKey?: boolean;
+  shiftKey?: boolean;
+}
+
 export interface FrontierAnnotationAncestor {
   tagName: string;
   selector: string;
@@ -104,8 +125,24 @@ export interface FrontierAnnotationDomTarget {
   attributes: Record<string, string>;
   dataset: Record<string, string>;
   rect: FrontierAnnotationRect;
+  click?: FrontierAnnotationTargetClick;
   computedStyle?: Record<string, string>;
   ancestry: FrontierAnnotationAncestor[];
+}
+
+export interface FrontierAnnotationMediaRef {
+  kind: 'image' | string;
+  role: 'element-screenshot' | 'canvas-click-crop' | string;
+  file?: string;
+  path?: string;
+  url?: string;
+  mimeType?: string;
+  width?: number;
+  height?: number;
+  selector?: string;
+  annotationId?: string;
+  createdAt?: number;
+  metadata?: FrontierAnnotationJsonObject;
 }
 
 export interface FrontierAnnotationThreadMessage {
@@ -140,6 +177,7 @@ export interface FrontierAnnotationInput {
   createdAt?: number;
   status?: FrontierAnnotationStatus;
   metadata?: unknown;
+  media?: readonly FrontierAnnotationMediaRef[];
 }
 
 export interface FrontierAnnotation {
@@ -160,6 +198,7 @@ export interface FrontierAnnotation {
   createdAt: number;
   status: FrontierAnnotationStatus;
   metadata?: FrontierAnnotationJsonObject;
+  media?: FrontierAnnotationMediaRef[];
 }
 
 export interface FrontierAnnotationSourceSymbolLike {

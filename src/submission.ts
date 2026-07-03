@@ -36,7 +36,8 @@ export function createFrontierAnnotation(input: FrontierAnnotation | FrontierAnn
     actor: draft.actor,
     createdAt: draft.createdAt ?? Date.now(),
     status: draft.status ?? 'draft',
-    metadata: toJsonObject(draft.metadata)
+    metadata: toJsonObject(draft.metadata),
+    ...(draft.media ? { media: [...draft.media] } : {})
   };
 }
 

@@ -253,13 +253,13 @@ function frontierAnnotationOverlayRuntime(input: Record<string, unknown>) {
     if (!(target instanceof Element) || isOverlayElement(target)) return;
     event.preventDefault();
     event.stopPropagation();
-    const annotation = createAnnotation(target, '', { createdBy: 'targeting' });
+    const annotation = createAnnotation(target, '', { createdBy: 'targeting' }, event);
     activeAnnotationId = annotation.id;
     renderThreads();
     focusComposer(annotation.id);
   }
 
-  function createAnnotation(element: Element, note?: string, metadata?: unknown) {
+  function createAnnotation(element: Element, note?: string, metadata?: unknown, clickEvent?: Event) {
     const initialBody = String(note || '').trim();
     const id = String(config.id || 'annotation') + '-' + Date.now().toString(36) + '-' + String(annotations.length + 1);
     const messages = initialBody ? [createThreadMessage(id, initialBody, metadata, 'submitted')] : [];
@@ -273,7 +273,7 @@ function frontierAnnotationOverlayRuntime(input: Record<string, unknown>) {
         collapsed: false,
         messages
       },
-      target: captureTarget(element),
+      target: captureTarget(element, clickEvent),
       css: config.includeCss === false ? [] : captureCss(element),
       sourceHints: captureSourceHints(element),
       url: location.href,
@@ -346,7 +346,7 @@ function frontierAnnotationOverlayRuntime(input: Record<string, unknown>) {
     renderThreads();
   }
 
-  function captureTarget(element: Element) {
+  function captureTarget(element: Element, clickEvent?: Event) {
     const htmlElement = element as HTMLInputElement;
     const attributes: Record<string, string> = {};
     for (const attribute of Array.from(element.attributes || [])) {
@@ -378,6 +378,8 @@ function frontierAnnotationOverlayRuntime(input: Record<string, unknown>) {
       },
       ancestry: ancestry(element)
     };
+    const click = captureClick(element, rect, clickEvent);
+    if (click) target.click = click;
     if ('value' in htmlElement && typeof htmlElement.value !== 'undefined') target.value = String(htmlElement.value);
     if ('checked' in htmlElement && typeof htmlElement.checked !== 'undefined') target.checked = Boolean(htmlElement.checked);
     if (config.includeComputedStyle !== false && typeof getComputedStyle === 'function') {
@@ -388,6 +390,40 @@ function frontierAnnotationOverlayRuntime(input: Record<string, unknown>) {
       }
     }
     return target;
+  }
+
+  function captureClick(element: Element, rect: DOMRect, event?: Event) {
+    const pointer = event as any;
+    if (!pointer || !Number.isFinite(Number(pointer.clientX)) || !Number.isFinite(Number(pointer.clientY))) return undefined;
+    const clientX = Number(pointer.clientX);
+    const clientY = Number(pointer.clientY);
+    const relativeX = clientX - Number(rect.left || 0);
+    const relativeY = clientY - Number(rect.top || 0);
+    const offsetX = Number.isFinite(Number(pointer.offsetX)) ? Number(pointer.offsetX) : relativeX;
+    const offsetY = Number.isFinite(Number(pointer.offsetY)) ? Number(pointer.offsetY) : relativeY;
+    const width = Number(rect.width || 0);
+    const height = Number(rect.height || 0);
+    const click: any = {
+      clientX,
+      clientY,
+      pageX: Number.isFinite(Number(pointer.pageX)) ? Number(pointer.pageX) : clientX + Number(win.scrollX || 0),
+      pageY: Number.isFinite(Number(pointer.pageY)) ? Number(pointer.pageY) : clientY + Number(win.scrollY || 0),
+      offsetX,
+      offsetY,
+      relativeX,
+      relativeY
+    };
+    if (Number.isFinite(Number(pointer.screenX))) click.screenX = Number(pointer.screenX);
+    if (Number.isFinite(Number(pointer.screenY))) click.screenY = Number(pointer.screenY);
+    if (width > 0) click.ratioX = relativeX / width;
+    if (height > 0) click.ratioY = relativeY / height;
+    for (const key of ['button', 'buttons']) {
+      if (Number.isFinite(Number(pointer[key]))) click[key] = Number(pointer[key]);
+    }
+    for (const key of ['altKey', 'ctrlKey', 'metaKey', 'shiftKey']) {
+      if (typeof pointer[key] === 'boolean') click[key] = Boolean(pointer[key]);
+    }
+    return click;
   }
 
   function captureCss(element: Element) {
